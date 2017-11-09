@@ -1,8 +1,8 @@
 	/*
 	Author: code34 nicolas_boiteux@yahoo.fr
-	Copyright (C) 2013-2016 Nicolas BOITEUX
+	Copyright (C) 2017-2018 Nicolas BOITEUX
 
-	CLASS OO_TEMPLATE
+	CLASS OO_EXTDB3
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,6 +31,6 @@
 	You can share, modify, distribute this script but don't remove the licence and the name of the original author
 
 	logs:
-		0.1 	- OO TEMPLATE - first release
+		0.1 	- OO EXTDB3 - first release
 
 
