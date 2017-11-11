@@ -67,7 +67,7 @@
 			DEBUG(#, "OO_EXTDB3::connect")
 			private _return = false;	
 			private _result = call compile ("extDB3" callExtension format["9:ADD_DATABASE:%1:%2", MEMBER("databaseconfigname", nil), MEMBER("databasename", nil)]);
-		
+
 			if !(isNil "_result") then {
 				if ((_result select 0) isEqualTo 1) then {
 					_return = MEMBER("testConnexion", nil);
@@ -82,8 +82,8 @@
 		PRIVATE FUNCTION("", "testConnexion") {
 			DEBUG(#, "OO_EXTDB3::testConnexion")
 			private _return = false;
-			"extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL:testconnexion", MEMBER("databasename", nil)];
-			private _result = call compile ("extDB3" callExtension "0:testconnexion:SELECT NOW();");
+			"extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:%2:SQL:TEXT", MEMBER("databasename", nil), MEMBER("databaseprotocol", nil)];
+			private _result = call compile ("extDB3" callExtension "0:SQL:SELECT NOW();");
 			if !(isNil "_result") then {
 				if ((_result select 0) isEqualTo 1) then { _return = true; };
 			};
@@ -91,10 +91,59 @@
 		};
 
 
-		PUBLIC FUNCTION("string", "getQuery") {
-			DEBUG(#, "OO_EXTDB3::getQuery")
-			private _result = call compile ("extDB3" callExtension format["0:%1:%2", MEMBER("databaseprotocol", nil), _this]);
-			_result;
+		/*
+		Execute SQL query or Prepared Statement
+		Parameter: array
+			_this select 0 : string - name of preparered statement or sql query
+			_this select 1 : any - return default value if nothing is found in db or error happen
+
+		return : value from db or default value
+		*/		
+		PUBLIC FUNCTION("array", "executeQuery") {
+			DEBUG(#, "OO_EXTDB3::executeQuery")
+			private _query = param [0, "", [""]];
+			private _defaultreturn = param [1, "", ["", true, 0, []]];
+			private _result = _defaultreturn;
+			private _mode = 0;
+			private _key = call compile ("extDB3" callExtension format["0:SQL:%1", _query]);
+			private _loop = 0;
+			private _pipe = "";
+
+			if((_key select 0) isEqualTo 2) then {_mode = 2;};
+			switch(_mode) do {
+				case 0 : { _result = _key; };
+				case 2 : {
+					_loop = true;
+					while { _loop } do {
+						_result = "extDB3" callExtension format["4:%1", _key select 1];
+						switch (true) do {
+							case (_result isEqualTo "[3]") : { uiSleep 0.1; };
+							case (_result isEqualTo "[5]") : {
+								_pipe = "go";
+								_result = "";
+								while{ !(_pipe isEqualTo "") } do {
+									_pipe = "extDB3" callExtension format["5:%1", _key select 1];
+									_result = _result + _pipe;
+								};
+								_loop= false;
+							};
+							default {_loop = false;};
+						};
+					};
+					_result = call compile _result;
+					if(isnil "_result") then { 
+						_result = [0, "Return value is not compatible with SQF"];
+					};
+				};
+				default {
+					_result = [0, "Mode is not compatible with OO_extDB2"];
+				};
+			};
+			
+			if ((_result select 0) isEqualTo 0) then {
+				_result = [0, _defaultreturn];
+			};
+			_result select 1;
 		};
 
 
