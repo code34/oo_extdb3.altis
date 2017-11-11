@@ -24,15 +24,24 @@
 		PRIVATE VARIABLE("string","databasename");
 		PRIVATE VARIABLE("string","databaseconfigname");
 		PRIVATE VARIABLE("string","databaseprotocol");
+		PRIVATE VARIABLE("string", "sessionid");
 
 		PUBLIC FUNCTION("","constructor") { 
 			DEBUG(#, "OO_EXTDB3::constructor")
-
+			MEMBER("databasename", "");
+			MEMBER("databaseconfigname", "");
+			MEMBER("databaseprotocol", "");
+			MEMBER("sessionid", "");
 		};
 
 		PUBLIC FUNCTION("","getVersion") {
 			DEBUG(#, "OO_EXTDB3::getVersion")
 			"extDB3" callExtension "9:VERSION";
+		};
+
+		PUBLIC FUNCTION("string", "setSessionId") {
+			DEBUG(#, "OO_EXTDB3::setSessionId")
+			MEMBER("sessionid", _this);
 		};
 
 		PUBLIC FUNCTION("string", "setDatabaseConfigName") {
@@ -46,12 +55,48 @@
 		};
 
 		/*
-			Protocol type SQL | SQL_CUSTOM
+			Protocol type LOG | SQL | SQL_CUSTOM
 		*/
 		PUBLIC FUNCTION("string", "setDatabaseProtocol") {
 			DEBUG(#, "OO_EXTDB3::setDatabaseProtocol")
+			if!(_this in ["LOG", "SQL", "SQL_CUSTOM"]) exitWith { false;};
 			MEMBER("databaseprotocol", _this);
 		};
+
+		PUBLIC FUNCTION("", "connect") {
+			DEBUG(#, "OO_EXTDB3::connect")
+			private _return = false;	
+			private _result = call compile ("extDB3" callExtension format["9:ADD_DATABASE:%1:%2", MEMBER("databaseconfigname", nil), MEMBER("databasename", nil)]);
+		
+			if !(isNil "_result") then {
+				if ((_result select 0) isEqualTo 1) then {
+					_return = MEMBER("testConnexion", nil);
+				}else{
+					if(tolower(_result select 1) isEqualTo "already connected to database") then { 	_return = MEMBER("testConnexion", nil); } ;
+				};
+			};
+			_return;
+		};
+
+
+		PRIVATE FUNCTION("", "testConnexion") {
+			DEBUG(#, "OO_EXTDB3::testConnexion")
+			private _return = false;
+			"extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL:testconnexion", MEMBER("databasename", nil)];
+			private _result = call compile ("extDB3" callExtension "0:testconnexion:SELECT NOW();");
+			if !(isNil "_result") then {
+				if ((_result select 0) isEqualTo 1) then { _return = true; };
+			};
+			_return;
+		};
+
+
+		PUBLIC FUNCTION("string", "getQuery") {
+			DEBUG(#, "OO_EXTDB3::getQuery")
+			private _result = call compile ("extDB3" callExtension format["0:%1:%2", MEMBER("databaseprotocol", nil), _this]);
+			_result;
+		};
+
 
 		/*
 			_this select 0 : password to lock
