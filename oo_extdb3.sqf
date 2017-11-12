@@ -24,7 +24,9 @@
 		PRIVATE VARIABLE("string","databasename");
 		PRIVATE VARIABLE("string","databaseconfigname");
 		PRIVATE VARIABLE("string","databaseprotocol");
+		PRIVATE VARIABLE("string", "inifile");
 		PRIVATE VARIABLE("string", "sessionid");
+		PRIVATE VARIABLE("string", "escapechar");
 
 		PUBLIC FUNCTION("","constructor") { 
 			DEBUG(#, "OO_EXTDB3::constructor")
@@ -32,11 +34,31 @@
 			MEMBER("databaseconfigname", "");
 			MEMBER("databaseprotocol", "");
 			MEMBER("sessionid", "");
+			MEMBER("escapechar", "TEXT");
 		};
 
+		/*
+			Retrieve the DLL EXTDB3 version
+			return sting version, or nil
+		*/
 		PUBLIC FUNCTION("","getVersion") {
 			DEBUG(#, "OO_EXTDB3::getVersion")
 			"extDB3" callExtension "9:VERSION";
+		};
+
+		/*
+			Check if Dll is loaded
+		*/
+		PUBLIC FUNCTION("","isDllEnabled") {
+			DEBUG(#, "OO_EXTDB3::isDllEnabled")
+			private _result = "extDB3" callExtension "9:VERSION";	
+			if(isNil "_result") exitWith { false;};
+			true;
+		};
+
+		PUBLIC FUNCTION("string", "setEscapeChar") {
+			DEBUG(#, "OO_EXTDB3::setEscapeChar")
+			MEMBER("escapechar", _this);
 		};
 
 		PUBLIC FUNCTION("string", "setSessionId") {
@@ -63,6 +85,16 @@
 			MEMBER("databaseprotocol", _this);
 		};
 
+		PUBLIC FUNCTION("string", "setIniFile") {
+			DEBUG(#, "OO_EXTDB3::setIniFile")
+			MEMBER("inifile", _this);
+		};
+
+		/*
+			Initialize connexion to target database
+			check if connexion is already existing if not create a new one
+			return true if connected, false if not
+		*/
 		PUBLIC FUNCTION("", "connect") {
 			DEBUG(#, "OO_EXTDB3::connect")
 			private _return = false;	
@@ -79,11 +111,26 @@
 		};
 
 
+		/*
+			Initialize the target protocol SQL/SQL_CUSTOM/LOG
+			Test the remote connexion to database
+			return: true if its ok, false if ko
+		*/
 		PRIVATE FUNCTION("", "testConnexion") {
 			DEBUG(#, "OO_EXTDB3::testConnexion")
 			private _return = false;
-			"extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:%2:SQL:TEXT", MEMBER("databasename", nil), MEMBER("databaseprotocol", nil)];
-			private _result = call compile ("extDB3" callExtension "0:SQL:SELECT NOW();");
+			private _result = [];
+			switch (MEMBER("databaseprotocol", nil)) do {
+				case "SQL" : { 
+					_result = call compile ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL:SQL:%2", MEMBER("databasename", nil), MEMBER("escapechar",nil)]);
+				};
+				case "SQL_CUSTOM" : {
+					_result = call compile ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL_CUSTOM:SQL:%2", MEMBER("databasename", nil), MEMBER("inifile", nil)]);
+				};
+				default {
+					_result = call compile ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:LOG:SQL:TEXT", MEMBER("databasename", nil)]);
+				};
+			};
 			if !(isNil "_result") then {
 				if ((_result select 0) isEqualTo 1) then { _return = true; };
 			};
@@ -92,12 +139,12 @@
 
 
 		/*
-		Execute SQL query or Prepared Statement
-		Parameter: array
-			_this select 0 : string - name of preparered statement or sql query
-			_this select 1 : any - return default value if nothing is found in db or error happen
+			Execute SQL query or Prepared Statement
+			Parameter: array
+				_this select 0 : string - name of preparered statement or sql query
+				_this select 1 : any - return default value if nothing is found in db or error happen
 
-		return : value from db or default value
+			return : value from db or default value
 		*/		
 		PUBLIC FUNCTION("array", "executeQuery") {
 			DEBUG(#, "OO_EXTDB3::executeQuery")
@@ -132,20 +179,24 @@
 					};
 					_result = call compile _result;
 					if(isnil "_result") then { 
-						_result = [0, "Return value is not compatible with SQF"];
+						_result = [0, "OO_EXTDB3: Return value is not compatible with SQF"];
 					};
 				};
-				default {
-					_result = [0, "Mode is not compatible with OO_extDB2"];
-				};
+				default { _result = [0, "OO_EXTDB3: Mode is not compatible"];	};
 			};
-			
-			if ((_result select 0) isEqualTo 0) then {
-				_result = [0, _defaultreturn];
-			};
+			if ((_result select 0) isEqualTo 0) then { _result = [0, _defaultreturn]; };
 			_result select 1;
 		};
 
+		/*
+			A string mapper
+			return empty string
+		*/
+		PUBLIC FUNCTION("string", "executeQuery") {
+			DEBUG(#, "OO_EXTDB3::executeQuery_string")
+			private _array = [_this, ""];
+			MEMBER("executeQuery", _array);
+		};
 
 		/*
 			_this select 0 : password to lock
@@ -316,5 +367,9 @@
 			DEBUG(#, "OO_EXTDB3::deconstructor")
 			DELETE_VARIABLE("databasename");
 			DELETE_VARIABLE("databaseconfigname");
+			DELETE_VARIABLE("databaseprotocol");
+			DELETE_VARIABLE("inifile");
+			DELETE_VARIABLE("sessionid");
+			DELETE_VARIABLE("escapechar");
 		};
 	ENDCLASS;
