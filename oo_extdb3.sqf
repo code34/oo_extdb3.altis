@@ -58,6 +58,7 @@
 
 		PUBLIC FUNCTION("string", "setEscapeChar") {
 			DEBUG(#, "OO_EXTDB3::setEscapeChar")
+			if!(_this in ["TEXT", "TEXT2", "NULL"]) then { _this = "TEXT";};
 			MEMBER("escapechar", _this);
 		};
 
@@ -85,6 +86,10 @@
 			MEMBER("databaseprotocol", _this);
 		};
 
+		/*
+			SQL_CUSTOM inifile declaration
+			_this name of the file
+		*/
 		PUBLIC FUNCTION("string", "setIniFile") {
 			DEBUG(#, "OO_EXTDB3::setIniFile")
 			MEMBER("inifile", _this);
@@ -360,6 +365,7 @@
 			return scalar
 		*/
 		PUBLIC FUNCTION("", "getOutPutSize") {
+			DEBUG(#, "OO_EXTDB3::getOutPutSize")
 			call compile ("extDB3" callExtension "9:OUTPUTSIZE");
 		};
 
