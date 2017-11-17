@@ -33,7 +33,7 @@
 			MEMBER("databasename", "");
 			MEMBER("databaseconfigname", "");
 			MEMBER("databaseprotocol", "");
-			MEMBER("sessionid", "");
+			MEMBER("sessionid", "SQL");
 			MEMBER("escapechar", "TEXT");
 		};
 
@@ -103,7 +103,7 @@
 		PUBLIC FUNCTION("", "connect") {
 			DEBUG(#, "OO_EXTDB3::connect")
 			private _return = false;	
-			private _result = call compile ("extDB3" callExtension format["9:ADD_DATABASE:%1:%2", MEMBER("databaseconfigname", nil), MEMBER("databasename", nil)]);
+			private _result = parseSimpleArray ("extDB3" callExtension format["9:ADD_DATABASE:%1:%2", MEMBER("databaseconfigname", nil), MEMBER("databasename", nil)]);
 
 			if !(isNil "_result") then {
 				if ((_result select 0) isEqualTo 1) then {
@@ -127,13 +127,13 @@
 			private _result = [];
 			switch (MEMBER("databaseprotocol", nil)) do {
 				case "SQL" : { 
-					_result = call compile ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL:SQL:%2", MEMBER("databasename", nil), MEMBER("escapechar",nil)]);
+					_result = parseSimpleArray ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL:%3:%2", MEMBER("databasename", nil), MEMBER("escapechar",nil), MEMBER("sessionid",nil)]);
 				};
 				case "SQL_CUSTOM" : {
-					_result = call compile ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL_CUSTOM:SQL:%2", MEMBER("databasename", nil), MEMBER("inifile", nil)]);
+					_result = parseSimpleArray ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL_CUSTOM:%3:%2", MEMBER("databasename", nil), MEMBER("inifile", nil), MEMBER("sessionid",nil)]);
 				};
 				default {
-					_result = call compile ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:LOG:SQL:TEXT", MEMBER("databasename", nil)]);
+					_result = parseSimpleArray ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:LOG:%3:TEXT", MEMBER("databasename", nil), MEMBER("sessionid",nil)]);
 				};
 			};
 			if !(isNil "_result") then {
@@ -157,7 +157,7 @@
 			private _defaultreturn = param [1, "", ["", true, 0, []]];
 			private _result = _defaultreturn;
 			private _mode = 0;
-			private _key = call compile ("extDB3" callExtension format["0:SQL:%1", _query]);
+			private _key = parseSimpleArray ("extDB3" callExtension format["0:%2:%1", _query, MEMBER("sessionid",nil)]);
 			private _loop = 0;
 			private _pipe = "";
 
@@ -182,7 +182,7 @@
 							default {_loop = false;};
 						};
 					};
-					_result = call compile _result;
+					_result = parseSimpleArray _result;
 					if(isnil "_result") then { 
 						_result = [0, "OO_EXTDB3: Return value is not compatible with SQF"];
 					};
@@ -209,7 +209,7 @@
 		*/
 		PUBLIC FUNCTION("string", "lock") {
 			DEBUG(#, "OO_EXTDB3::lock")
-			call compile ("extDB3" callExtension (format ["9:LOCK:%1", _this]));
+			parseSimpleArray ("extDB3" callExtension (format ["9:LOCK:%1", _this]));
 		};
 
 
@@ -218,7 +218,7 @@
 		*/
 		PUBLIC FUNCTION("", "lock") {
 			DEBUG(#, "OO_EXTDB3::lock")
-			call compile ("extDB3" callExtension "9:LOCK");
+			parseSimpleArray ("extDB3" callExtension "9:LOCK");
 		};
 
 		/*
@@ -227,7 +227,7 @@
 		*/
 		PUBLIC FUNCTION("string", "unlock") {
 			DEBUG(#, "OO_EXTDB3::unlock")
-			call compile ("extDB3" callExtension (format ["9:UNLOCK:%1", _this]));
+			parseSimpleArray ("extDB3" callExtension (format ["9:UNLOCK:%1", _this]));
 		};
 
 		/*
@@ -235,7 +235,7 @@
 		*/
 		PUBLIC FUNCTION("", "unlock") {
 			DEBUG(#, "OO_EXTDB3::unlock")
-			call compile ("extDB3" callExtension "9:UNLOCK");
+			parseSimpleArray ("extDB3" callExtension "9:UNLOCK");
 		};
 
 		/*
@@ -245,7 +245,7 @@
 		*/
 		PUBLIC FUNCTION("", "lockStatus") {
 			DEBUG(#, "OO_EXTDB3::lockStatus")
-			call compile ("extDB3" callExtension "9:LOCK_STATUS");
+			parseSimpleArray ("extDB3" callExtension "9:LOCK_STATUS");
 		};
 
 
@@ -255,7 +255,7 @@
 		*/
 		PUBLIC FUNCTION("", "reset") {
 			DEBUG(#, "OO_EXTDB3::reset")
-			call compile ("extDB3" callExtension "9:RESET");
+			parseSimpleArray ("extDB3" callExtension "9:RESET");
 		};
 
 		/*
@@ -263,7 +263,7 @@
 		*/
 		PUBLIC FUNCTION("", "getLocalTime") {
 			DEBUG(#, "OO_EXTDB3::getLocalTime")
-			call compile ("extDB3" callExtension "9:LOCAL_TIME");
+			parseSimpleArray ("extDB3" callExtension "9:LOCAL_TIME");
 		};
 
 		/*
@@ -272,7 +272,7 @@
 		*/
 		PUBLIC FUNCTION("scalar", "getLocalTime") {
 			DEBUG(#, "OO_EXTDB3::getLocalTime_scalar")
-			call compile ("extDB3" callExtension (format["9:LOCAL_TIME:%1", _this]));
+			parseSimpleArray ("extDB3" callExtension (format["9:LOCAL_TIME:%1", _this]));
 		};
 
 		/*
@@ -283,7 +283,7 @@
 		PUBLIC FUNCTION("array", "getLocalTime") {
 			DEBUG(#, "OO_EXTDB3::getLocalTime_array")
 			if!(count _this isEqualTo 6) exitWith {[];};
-			private _result = call compile ("extDB3" callExtension (format["9:LOCAL_TIME:%1", _this]));
+			private _result = parseSimpleArray ("extDB3" callExtension (format["9:LOCAL_TIME:%1", _this]));
 			if((_result select 0) isEqualTo 1) then {
 				_result = _result select 1;
 			} else {
@@ -297,7 +297,7 @@
 		*/
 		PUBLIC FUNCTION("", "getUtcTime") {
 			DEBUG(#, "OO_EXTDB3::getUtcTime")
-			call compile ("extDB3" callExtension "9:UTC_TIME");
+			parseSimpleArray ("extDB3" callExtension "9:UTC_TIME");
 		};
 
 		/*
@@ -306,7 +306,7 @@
 		*/
 		PUBLIC FUNCTION("scalar", "getUtcTime") {
 			DEBUG(#, "OO_EXTDB3::getUtcTime_scalar")
-			call compile ("extDB3" callExtension (format["9:UTC_TIME:%1", _this]));
+			parseSimpleArray ("extDB3" callExtension (format["9:UTC_TIME:%1", _this]));
 		};
 
 		/*
@@ -317,7 +317,7 @@
 		PUBLIC FUNCTION("array", "getUtcTime") {
 			DEBUG(#, "OO_EXTDB3::getUtcTime_array")
 			if!((count _this) isEqualTo 6) exitWith { []; };
-			private _result = call compile ("extDB3" callExtension (format["9:UTC_TIME:%1", _this]));
+			private _result = parseSimpleArray ("extDB3" callExtension (format["9:UTC_TIME:%1", _this]));
 			if((_result select 0) isEqualTo 1) then {
 				_result = _result select 1;
 			} else {
@@ -331,7 +331,7 @@
 		*/
 		PUBLIC FUNCTION("", "getUtcTime") {
 			DEBUG(#, "OO_EXTDB3::getUtcTime")
-			call compile ("extDB3" callExtension "9:UTC_TIME");
+			parseSimpleArray ("extDB3" callExtension "9:UTC_TIME");
 		};
 
 		/*
@@ -341,7 +341,7 @@
 		PUBLIC FUNCTION("string", "getUptime") {
 			DEBUG(#, "OO_EXTDB3::getUptime")
 			if!(_this in ["SECONDS", "MINUTES", "HOURS"]) exitWith {0;};
-			call compile ("extDB3" callExtension (format["9:UPTIME:%1", _this]));
+			"extDB3" callExtension (format["9:UPTIME:%1", _this]);
 		};
 
 		/*
@@ -352,7 +352,7 @@
 		PUBLIC FUNCTION("array", "addDate") {
 			DEBUG(#, "OO_EXTDB3::addDate")
 			if!(count _this isEqualTo 2) exitWith { []; };
-			private _result = call compile ("extDB3" callExtension format["9:DATEADD:%1:%2", _this select 0, _this select 1]);
+			private _result = parseSimpleArray ("extDB3" callExtension format["9:DATEADD:%1:%2", _this select 0, _this select 1]);
 			if((_result select 0) isEqualTo 1) then {
 				_result = _result select 1;
 			} else {
@@ -362,11 +362,12 @@
 		};
 
 		/*
+
 			return scalar
 		*/
 		PUBLIC FUNCTION("", "getOutPutSize") {
 			DEBUG(#, "OO_EXTDB3::getOutPutSize")
-			call compile ("extDB3" callExtension "9:OUTPUTSIZE");
+			"extDB3" callExtension "9:OUTPUTSIZE";
 		};
 
 		PUBLIC FUNCTION("","deconstructor") { 
