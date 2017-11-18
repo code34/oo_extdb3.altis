@@ -21,9 +21,10 @@
 	Create a main bus message between clients & server
 	
 	Usage:
+		install the extdb3 addon
 		put the "oo_extdb3.sqf" and the "oop.h" files in your mission directory
 		put this code into your mission init.sqf
-		call compilefinal preprocessFileLineNumbers "oo_extdb3.sqf";
+		call compile preprocessFileLineNumbers "oo_extdb3.sqf";
 
 	See example mission in directory: init.sqf
 	
