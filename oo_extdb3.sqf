@@ -23,8 +23,8 @@
 	CLASS("OO_EXTDB3")
 		PRIVATE VARIABLE("string","databasename");
 		PRIVATE VARIABLE("string","databaseconfigname");
-		PRIVATE VARIABLE("string","databaseprotocol");
-		PRIVATE VARIABLE("string", "inifile");
+		PRIVATE VARIABLE("string","querytype");
+		PRIVATE VARIABLE("string", "sqlcustominifile");
 		PRIVATE VARIABLE("string", "sessionid");
 		PRIVATE VARIABLE("string", "escapechar");
 
@@ -32,7 +32,7 @@
 			DEBUG(#, "OO_EXTDB3::constructor")
 			MEMBER("databasename", "");
 			MEMBER("databaseconfigname", "");
-			MEMBER("databaseprotocol", "");
+			MEMBER("querytype", "");
 			MEMBER("sessionid", "SQL");
 			MEMBER("escapechar", "TEXT");
 		};
@@ -48,6 +48,7 @@
 
 		/*
 			Check if Dll is loaded
+			return bool
 		*/
 		PUBLIC FUNCTION("","isDllEnabled") {
 			DEBUG(#, "OO_EXTDB3::isDllEnabled")
@@ -67,8 +68,8 @@
 			MEMBER("sessionid", _this);
 		};
 
-		PUBLIC FUNCTION("string", "setDatabaseConfigName") {
-			DEBUG(#, "OO_EXTDB3::setDatabaseConfigName")
+		PUBLIC FUNCTION("string", "setIniSectionDatabase") {
+			DEBUG(#, "OO_EXTDB3::setIniSectionDatabase")
 			MEMBER("databaseconfigname", _this);
 		};
 
@@ -80,19 +81,19 @@
 		/*
 			Protocol type LOG | SQL | SQL_CUSTOM
 		*/
-		PUBLIC FUNCTION("string", "setDatabaseProtocol") {
-			DEBUG(#, "OO_EXTDB3::setDatabaseProtocol")
+		PUBLIC FUNCTION("string", "setQueryType") {
+			DEBUG(#, "OO_EXTDB3::setQueryType")
 			if!(_this in ["LOG", "SQL", "SQL_CUSTOM"]) exitWith { false;};
-			MEMBER("databaseprotocol", _this);
+			MEMBER("querytype", _this);
 		};
 
 		/*
-			SQL_CUSTOM inifile declaration
+			SQL_CUSTOM ini file declaration
 			_this name of the file
 		*/
-		PUBLIC FUNCTION("string", "setIniFile") {
-			DEBUG(#, "OO_EXTDB3::setIniFile")
-			MEMBER("inifile", _this);
+		PUBLIC FUNCTION("string", "setSqlCustomIniFile") {
+			DEBUG(#, "OO_EXTDB3::setSqlCustomIniFile")
+			MEMBER("sqlcustominifile", _this);
 		};
 
 		/*
@@ -125,12 +126,12 @@
 			DEBUG(#, "OO_EXTDB3::testConnexion")
 			private _return = false;
 			private _result = [];
-			switch (MEMBER("databaseprotocol", nil)) do {
+			switch (MEMBER("querytype", nil)) do {
 				case "SQL" : { 
 					_result = parseSimpleArray ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL:%3:%2", MEMBER("databasename", nil), MEMBER("escapechar",nil), MEMBER("sessionid",nil)]);
 				};
 				case "SQL_CUSTOM" : {
-					_result = parseSimpleArray ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL_CUSTOM:%3:%2", MEMBER("databasename", nil), MEMBER("inifile", nil), MEMBER("sessionid",nil)]);
+					_result = parseSimpleArray ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:SQL_CUSTOM:%3:%2", MEMBER("databasename", nil), MEMBER("sqlcustominifile", nil), MEMBER("sessionid",nil)]);
 				};
 				default {
 					_result = parseSimpleArray ("extDB3" callExtension format ["9:ADD_DATABASE_PROTOCOL:%1:LOG:%3:TEXT", MEMBER("databasename", nil), MEMBER("sessionid",nil)]);
@@ -345,7 +346,7 @@
 		};
 
 		/*
-			years and months are not used
+			Years and months are not used
 			param  [[0,0, Days, Hours, Minutes, Seconds], [+x Days, +x Hours, +x Minutes, +x Seconds]]
 			return [] if error
 		*/
@@ -363,6 +364,7 @@
 
 		/*
 
+			Arma outputSize for extensions.
 			return scalar
 		*/
 		PUBLIC FUNCTION("", "getOutPutSize") {
@@ -374,8 +376,8 @@
 			DEBUG(#, "OO_EXTDB3::deconstructor")
 			DELETE_VARIABLE("databasename");
 			DELETE_VARIABLE("databaseconfigname");
-			DELETE_VARIABLE("databaseprotocol");
-			DELETE_VARIABLE("inifile");
+			DELETE_VARIABLE("querytype");
+			DELETE_VARIABLE("sqlcustominifile");
 			DELETE_VARIABLE("sessionid");
 			DELETE_VARIABLE("escapechar");
 		};
