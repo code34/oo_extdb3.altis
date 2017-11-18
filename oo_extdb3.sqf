@@ -22,7 +22,7 @@
 
 	CLASS("OO_EXTDB3")
 		PRIVATE VARIABLE("string","databasename");
-		PRIVATE VARIABLE("string","databaseconfigname");
+		PRIVATE VARIABLE("string","inisectiondatabase");
 		PRIVATE VARIABLE("string","querytype");
 		PRIVATE VARIABLE("string", "sqlcustominifile");
 		PRIVATE VARIABLE("string", "sessionid");
@@ -31,8 +31,9 @@
 		PUBLIC FUNCTION("","constructor") { 
 			DEBUG(#, "OO_EXTDB3::constructor")
 			MEMBER("databasename", "");
-			MEMBER("databaseconfigname", "");
-			MEMBER("querytype", "");
+			MEMBER("inisectiondatabase", "Database");
+			MEMBER("querytype", "SQL");
+			MEMBER("sqlcustominifile", "");
 			MEMBER("sessionid", "SQL");
 			MEMBER("escapechar", "TEXT");
 		};
@@ -70,7 +71,7 @@
 
 		PUBLIC FUNCTION("string", "setIniSectionDatabase") {
 			DEBUG(#, "OO_EXTDB3::setIniSectionDatabase")
-			MEMBER("databaseconfigname", _this);
+			MEMBER("inisectiondatabase", _this);
 		};
 
 		PUBLIC FUNCTION("string", "setDatabaseName") {
@@ -89,7 +90,7 @@
 
 		/*
 			SQL_CUSTOM ini file declaration
-			_this name of the file
+			_this name of the ini file in @extDB3\sql_custom
 		*/
 		PUBLIC FUNCTION("string", "setSqlCustomIniFile") {
 			DEBUG(#, "OO_EXTDB3::setSqlCustomIniFile")
@@ -104,7 +105,7 @@
 		PUBLIC FUNCTION("", "connect") {
 			DEBUG(#, "OO_EXTDB3::connect")
 			private _return = false;	
-			private _result = parseSimpleArray ("extDB3" callExtension format["9:ADD_DATABASE:%1:%2", MEMBER("databaseconfigname", nil), MEMBER("databasename", nil)]);
+			private _result = parseSimpleArray ("extDB3" callExtension format["9:ADD_DATABASE:%1:%2", MEMBER("inisectiondatabase", nil), MEMBER("databasename", nil)]);
 
 			if !(isNil "_result") then {
 				if ((_result select 0) isEqualTo 1) then {
@@ -223,6 +224,7 @@
 		};
 
 		/*
+			Disables all System Commands except for VERSION + LOCK_STATUS + various TIME/DATA Commands.
 			_this select 0 : password to unlock
 			return [1]
 		*/
@@ -375,7 +377,7 @@
 		PUBLIC FUNCTION("","deconstructor") { 
 			DEBUG(#, "OO_EXTDB3::deconstructor")
 			DELETE_VARIABLE("databasename");
-			DELETE_VARIABLE("databaseconfigname");
+			DELETE_VARIABLE("inisectiondatabase");
 			DELETE_VARIABLE("querytype");
 			DELETE_VARIABLE("sqlcustominifile");
 			DELETE_VARIABLE("sessionid");

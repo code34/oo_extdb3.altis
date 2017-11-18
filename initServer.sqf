@@ -9,7 +9,7 @@
 		private _extdb3 = "new" call OO_extDB3;
 		["setIniSectionDatabase", "Database"] call _extdb3;
 		["setDatabaseName", "extdb3"] call _extdb3;
-		["setIniFile", "test.ini"] call _extdb3;
+		["setSqlCustomIniFile", "test.ini"] call _extdb3;
 		["setQueryType", "SQL_CUSTOM"] call _extdb3;
 		_result = "connect" call _extdb3;
 		private _query = ["getAll", []];
