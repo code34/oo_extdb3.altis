@@ -19,18 +19,143 @@
 
 	--------------------------------------------------------------------------------------------------------------
 
-	Function:  _template = ["new", ""] call OO_TEMPLATE;
-	Create a new template object
+	Function:  _extdb3 = "new" call OO_EXTDB3;
+	Create a new extdb3 object
 		
 	Parameters: 
 		string 
 
 	--------------------------------------------------------------------------------------------------------------
+
+	Function:  _version = "getVersion" call _extdb3;
+	Return string extdb3 version
+		
+	--------------------------------------------------------------------------------------------------------------
+
+	Function:  _bool = "isDllEnabled" call _extdb3;
+	Return bool - is extdb3 is loaded
+
+	--------------------------------------------------------------------------------------------------------------
+
+	Function:   ["setEscapeChar", _string] call _extdb3;
+	param string : "TEXT", "TEXT2", "NULL"
+
+	--------------------------------------------------------------------------------------------------------------
+
+	Function:  ["setSessionId", _string] call _extdb3;
+	param string : unique string to identify the session (default "SQL")
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  ["setIniSectionDatabase", _string] call _extdb3;
+	param string : set Ini Section concerning Database
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  ["setDatabaseName", _string] call _extdb3;
+	param string : set the databasename used
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  ["setQueryType", _string] call _extdb3;
+	param string : set the type of SQL queries
+		"SQL" : Classic sql
+		"SQL_CUSTOM" : SQL prepared statement
+		 "LOG" : log
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  ["setSqlCustomIniFile", _string] call _extdb3;
+	param string : set the SQL CUSTOM ini file
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  _bool = "connect" call _extdb3;
+	connect to database
+	Return bool -  true if connected
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  _return = ["executeQuery", [_query, _defaultreturnvalue]] call _extdb3;
+	params: 
+		string SQL query or SQL CUSTOM method
+		default value return if nothing is return
+
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:   _return = ["executeQuery", _query] call _extdb3;
+	params: 
+		string SQL query
+		if nothing is return, return empty string
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:   _array = ["lock", _string] call _extdb3;
+	Disables all System Commands except for VERSION + LOCK_STATUS + various TIME/DATA Commands
+	params: 
+		string - password lock
+	return array
+
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  _array = ["unlock", _string] call _extdb3;
+	params: 
+		string - password lock
+	return array
+
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  _array = "lockStatus" call _extdb3;
+	return array - lock status
+		[0] // extension is unlocked.  
+		[1] // extension is locked.
+
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  _array = "reset" call _extdb3;
+	reset the dll when debug .dll is used
+
+	return:
+		return [0] or
+		return [1] if success
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  _locatime = "getLocalTime" call _extdb3;
+	return array - local time
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function:  _utctime = "getUtcTime" call _extdb3;
+	return array - utc time
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function: _uptime =  ["getUptime", _string] call _extdb3;
+	params : "SECONDS", "MINUTES", "HOURS"
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function: _array =  ["addDate", _array] call _extdb3;
+	params : 
+		param  [[0,0, Days, Hours, Minutes, Seconds], [+x Days, +x Hours, +x Minutes, +x Seconds]]
+
+	-------------------------------------------------------------------------------------------------------------
+
+	Function: _scalar =  "getOutPutSize" call _extdb3;
 	
-	Function:  ["delete", _template] call OO_TEMPLATE;
+	return _scalar
+
+	--------------------------------------------------------------------------------------------------------------
+	
+	Function:  ["delete", _extdb3] call OO_EXTDB3;
 	Destroy the template object 
 		
 	Parameters:
-		object - template object
+		object - extdb3 object
 	
 	Return : nothing
