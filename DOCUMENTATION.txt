@@ -48,7 +48,7 @@
 	-------------------------------------------------------------------------------------------------------------
 
 	Function:  ["setIniSectionDatabase", _string] call _extdb3;
-	param string : set Ini Section concerning Database
+	param string : set Ini Section concerning Database (default "Database")
 
 	-------------------------------------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@
 	-------------------------------------------------------------------------------------------------------------
 
 	Function:  ["setQueryType", _string] call _extdb3;
-	param string : set the type of SQL queries
+	param string : set the type of SQL queries (default SQL)
 		"SQL" : Classic sql
 		"SQL_CUSTOM" : SQL prepared statement
 		 "LOG" : log
