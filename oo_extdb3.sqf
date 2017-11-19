@@ -25,6 +25,7 @@
 		PRIVATE VARIABLE("string","inisectiondatabase");
 		PRIVATE VARIABLE("string","querytype");
 		PRIVATE VARIABLE("string", "sqlcustominifile");
+		PRIVATE STATIC_VARIABLE("array", "sessions");
 		PRIVATE VARIABLE("string", "sessionid");
 		PRIVATE VARIABLE("string", "escapechar");
 
@@ -34,8 +35,8 @@
 			MEMBER("inisectiondatabase", "Database");
 			MEMBER("querytype", "SQL");
 			MEMBER("sqlcustominifile", "");
-			MEMBER("sessionid", "SQL");
 			MEMBER("escapechar", "TEXT");
+			MEMBER("generateSessionId", nil);
 		};
 
 		/*
@@ -64,9 +65,20 @@
 			MEMBER("escapechar", _this);
 		};
 
-		PUBLIC FUNCTION("string", "setSessionId") {
-			DEBUG(#, "OO_EXTDB3::setSessionId")
-			MEMBER("sessionid", _this);
+
+		/*
+			Generate a unique session id. Unique session id is require when changing mode
+			Parameters: none
+			Return : string - sessionid
+		*/
+		PUBLIC FUNCTION("", "generateSessionId") {
+			DEBUG(#, "OO_extDB3::generateSessionId")
+			private _sessionid = str(round(random(999999))) + str(round(random(999999)));
+			while { _sessionid in MEMBER("sessions", nil) } do {
+				_sessionid = str(round(random(999999))) + str(round(random(999999)));
+			};
+			MEMBER("sessions", nil) pushBack _sessionid;
+			MEMBER("sessionid", _sessionid);
 		};
 
 		PUBLIC FUNCTION("string", "setIniSectionDatabase") {

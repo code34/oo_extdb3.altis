@@ -32,6 +32,7 @@
 	You can share, modify, distribute this script but don't remove the licence and the name of the original author
 
 	logs:
+		0.2	- Add generate unique id session
 		0.1 	- OO EXTDB3 - first release
 
 
