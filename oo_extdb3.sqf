@@ -3,7 +3,7 @@
 	Copyright (C) 2017-2018 Nicolas BOITEUX
 
 	CLASS OO_EXTDB3
-	
+
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
@@ -41,7 +41,7 @@
 
 		/*
 			Retrieve the DLL EXTDB3 version
-			return sting version, or nil
+			return sting version, or empty string
 		*/
 		PUBLIC FUNCTION("","getVersion") {
 			DEBUG(#, "OO_EXTDB3::getVersion")
@@ -54,8 +54,8 @@
 		*/
 		PUBLIC FUNCTION("","isDllEnabled") {
 			DEBUG(#, "OO_EXTDB3::isDllEnabled")
-			private _result = "extDB3" callExtension "9:VERSION";	
-			if(isNil "_result") exitWith { false;};
+			private _result = "extDB3" callExtension "9:VERSION";
+			if(_result isEqualTo "") exitWith { false;};
 			true;
 		};
 
@@ -116,7 +116,7 @@
 		*/
 		PUBLIC FUNCTION("", "connect") {
 			DEBUG(#, "OO_EXTDB3::connect")
-			private _return = false;	
+			private _return = false;
 			private _result = parseSimpleArray ("extDB3" callExtension format["9:ADD_DATABASE:%1:%2", MEMBER("inisectiondatabase", nil), MEMBER("databasename", nil)]);
 
 			if !(isNil "_result") then {
